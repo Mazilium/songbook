@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">Пісенник</string>
+    <string name="subtitle">Пісні та акорди</string>
+    <string name="contents">Зміст</string>
+    <string name="settings">Налаштування</string>
+    <string name="sound_on">Шелест увімкнено</string>
+    <string name="sound_off">Шелест вимкнено</string>
+    <string name="font_size">Розмір шрифту</string>
+    <string name="transpose">Тональність (транспонування)</string>
+    <string name="close">Закрити</string>
+    <string name="page_of">Стор. %1$d з %2$d</string>
+</resources>

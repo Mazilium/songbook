@@ -1,0 +1,20 @@
+<resources>
+    <!-- Leather Book Outer Cover -->
+    <color name="book_cover_bg">#1F130B</color>
+    <color name="book_spine">#3B1F0E</color>
+    
+    <!-- Paper Page Colors -->
+    <color name="page_paper_bg">#FFFDF5</color>
+    <color name="page_paper_border">#E7DFD0</color>
+    
+    <!-- Text and Chords -->
+    <color name="text_lyrics">#1C1917</color>
+    <color name="text_chords">#C2410C</color>
+    <color name="text_meta">#78716C</color>
+    
+    <!-- UI Accents -->
+    <color name="accent_gold">#D97706</color>
+    <color name="accent_warm">#92400E</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="black">#FF000000</color>
+</resources>

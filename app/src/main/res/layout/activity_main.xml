@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/book_cover_bg"
+    android:orientation="vertical">
+
+    <!-- Top Book Header Toolbar -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="52dp"
+        android:background="@color/book_spine"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="10dp">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="📖 Пісенник"
+            android:textColor="#FDE68A"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <!-- Sync with GitHub button -->
+        <ImageButton
+            android:id="@+id/btnSync"
+            android:layout_width="38dp"
+            android:layout_height="38dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Оновити з GitHub"
+            android:src="@android:drawable/ic_popup_sync"
+            android:tint="#FDE68A" />
+
+        <!-- Table of contents button -->
+        <Button
+            android:id="@+id/btnContents"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="38dp"
+            android:text="📋 Зміст"
+            android:textColor="#FDE68A"
+            android:textSize="13sp" />
+
+        <!-- Zoom out / in font -->
+        <Button
+            android:id="@+id/btnZoomOut"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="36dp"
+            android:layout_height="38dp"
+            android:minWidth="0dp"
+            android:padding="0dp"
+            android:text="A-"
+            android:textColor="#FDE68A"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+
+        <Button
+            android:id="@+id/btnZoomIn"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="36dp"
+            android:layout_height="38dp"
+            android:minWidth="0dp"
+            android:padding="0dp"
+            android:text="A+"
+            android:textColor="#FDE68A"
+            android:textSize="15sp"
+            android:textStyle="bold" />
+
+        <!-- Sound Rustle Toggle Button -->
+        <ImageButton
+            android:id="@+id/btnSoundToggle"
+            android:layout_width="38dp"
+            android:layout_height="38dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/sound_on"
+            android:src="@android:drawable/ic_lock_silent_mode_off"
+            android:tint="#FDE68A" />
+
+        <!-- Settings dialog button -->
+        <ImageButton
+            android:id="@+id/btnSettings"
+            android:layout_width="38dp"
+            android:layout_height="38dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/settings"
+            android:src="@android:drawable/ic_menu_preferences"
+            android:tint="#FDE68A" />
+    </LinearLayout>
+
+    <!-- Main Page Flipper ViewPager2 -->
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/viewPagerSongs"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:clipToPadding="false"
+        android:paddingHorizontal="10dp" />
+
+    <!-- Bottom Page Navigation Bar -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="@color/book_spine"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="16dp">
+
+        <Button
+            android:id="@+id/btnPrevPage"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="◀ Листок назад"
+            android:textColor="#FDE68A"
+            android:textSize="13sp" />
+
+        <TextView
+            android:id="@+id/tvBottomPageIndicator"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="1 / 6"
+            android:textColor="#E5E7EB"
+            android:textSize="13sp" />
+
+        <Button
+            android:id="@+id/btnNextPage"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Листок вперед ▶"
+            android:textColor="#FDE68A"
+            android:textSize="13sp" />
+    </LinearLayout>
+
+</LinearLayout>

@@ -1,0 +1,11 @@
+<resources>
+    <style name="Theme.Songbook" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/accent_warm</item>
+        <item name="colorPrimaryVariant">@color/book_cover_bg</item>
+        <item name="colorOnPrimary">@color/white</item>
+        
+        <item name="android:statusBarColor">@color/book_cover_bg</item>
+        <item name="android:navigationBarColor">@color/book_cover_bg</item>
+        <item name="android:windowBackground">@color/book_cover_bg</item>
+    </style>
+</resources>
