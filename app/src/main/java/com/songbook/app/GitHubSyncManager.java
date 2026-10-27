@@ -22,7 +22,6 @@ public class GitHubSyncManager {
     private static final String PREF_NAME = "songbook_prefs";
     private static final String KEY_GITHUB_URL = "github_songs_url";
 
-    // Default URL pointing directly to Mazilium's repository
     public static final String DEFAULT_URL = "https://raw.githubusercontent.com/Mazilium/songbook/main/songs.json";
 
     public interface SyncCallback {
@@ -44,7 +43,15 @@ public class GitHubSyncManager {
     }
 
     public static void syncSongsFromGitHub(Context context, List<Song> currentSongs, SyncCallback callback) {
-        String targetUrl = getSavedUrl(context);
+        String baseTargetUrl = getSavedUrl(context);
+
+        // Convert github.com blob/raw web links to real raw.githubusercontent.com if needed
+        if (baseTargetUrl.contains("github.com") && baseTargetUrl.contains("/blob/")) {
+            baseTargetUrl = baseTargetUrl.replace("github.com", "raw.githubusercontent.com").replace("/blob/", "/");
+        }
+
+        // Add cache-busting timestamp query parameter so GitHub CDN never serves stale cache
+        String targetUrl = baseTargetUrl + (baseTargetUrl.contains("?") ? "&" : "?") + "t=" + System.currentTimeMillis();
 
         executor.execute(() -> {
             HttpURLConnection conn = null;
@@ -55,6 +62,9 @@ public class GitHubSyncManager {
                 conn.setConnectTimeout(8000);
                 conn.setReadTimeout(10000);
                 conn.setRequestProperty("Accept", "application/json");
+                conn.setRequestProperty("Cache-Control", "no-cache, no-store, must-revalidate");
+                conn.setRequestProperty("Pragma", "no-cache");
+                conn.setRequestProperty("User-Agent", "Songbook-Android-App");
 
                 int responseCode = conn.getResponseCode();
                 if (responseCode != HttpURLConnection.HTTP_OK) {
@@ -66,11 +76,19 @@ public class GitHubSyncManager {
                 StringBuilder sb = new StringBuilder();
                 String line;
                 while ((line = reader.readLine()) != null) {
-                    sb.append(line);
+                    sb.append(line).append("\n");
                 }
                 reader.close();
 
-                JSONArray jsonArray = new JSONArray(sb.toString());
+                String rawJson = sb.toString().trim();
+
+                // Auto-repair common syntax typos:
+                // 1. Missing comma between song objects: } { -> }, {
+                rawJson = rawJson.replaceAll("\\}\\s*\\{", "},\n{");
+                // 2. Trailing comma before closing bracket: , ] -> ]
+                rawJson = rawJson.replaceAll(",\\s*\\]", "\n]");
+
+                JSONArray jsonArray = new JSONArray(rawJson);
                 List<Song> remoteSongs = new ArrayList<>();
                 for (int i = 0; i < jsonArray.length(); i++) {
                     JSONObject obj = jsonArray.getJSONObject(i);
@@ -83,7 +101,11 @@ public class GitHubSyncManager {
 
             } catch (Exception e) {
                 String errMsg = e.getMessage() != null ? e.getMessage() : "Не вдалося з'єднатися з GitHub";
-                mainHandler.post(() -> callback.onError(errMsg));
+                if (errMsg.contains("Unterminated array")) {
+                    errMsg = "Пропущено кому між піснями у файлі songs.json або незакриту дужку ']'";
+                }
+                final String finalMsg = errMsg;
+                mainHandler.post(() -> callback.onError(finalMsg));
             } finally {
                 if (conn != null) {
                     conn.disconnect();
