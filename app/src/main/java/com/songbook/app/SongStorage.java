@@ -16,12 +16,17 @@ public class SongStorage {
 
     private static final String FILE_NAME = "songs_cache.json";
 
+    public static class SyncReport {
+        public int added = 0;
+        public int removed = 0;
+        public int total = 0;
+    }
+
     public static List<Song> loadSongs(Context context) {
         List<Song> songs = new ArrayList<>();
         File file = new File(context.getFilesDir(), FILE_NAME);
 
         if (!file.exists()) {
-            // First run: load initial songs and persist them to cache
             songs = SongRepository.getSongs();
             saveSongs(context, songs);
             return songs;
@@ -41,7 +46,6 @@ public class SongStorage {
                 songs.add(Song.fromJsonObject(obj));
             }
         } catch (Exception e) {
-            // Fallback to default bundled songs
             songs = SongRepository.getSongs();
         }
 
@@ -62,32 +66,56 @@ public class SongStorage {
     }
 
     /**
-     * Merges newly downloaded songs into the existing list.
-     * Returns the number of brand new songs added.
+     * Mirrors the remote list from GitHub into the app:
+     * - Deletes songs that were removed from GitHub.
+     * - Adds newly added songs.
+     * - Updates modified lyrics or keys.
      */
-    public static int mergeNewSongs(Context context, List<Song> currentSongs, List<Song> remoteSongs) {
-        int addedCount = 0;
+    public static SyncReport syncWithRemoteSongs(Context context, List<Song> currentSongs, List<Song> remoteSongs) {
+        SyncReport report = new SyncReport();
 
-        for (Song remoteSong : remoteSongs) {
-            boolean exists = false;
-            for (Song current : currentSongs) {
-                if (current.getTitle().trim().equalsIgnoreCase(remoteSong.getTitle().trim()) &&
-                    current.getAuthor().trim().equalsIgnoreCase(remoteSong.getAuthor().trim())) {
-                    exists = true;
+        if (remoteSongs == null || remoteSongs.isEmpty()) {
+            report.total = currentSongs.size();
+            return report;
+        }
+
+        // Count removals (songs present in app but not in remote)
+        for (Song cur : currentSongs) {
+            boolean existsInRemote = false;
+            for (Song rem : remoteSongs) {
+                if (cur.getTitle().trim().equalsIgnoreCase(rem.getTitle().trim()) &&
+                    cur.getAuthor().trim().equalsIgnoreCase(rem.getAuthor().trim())) {
+                    existsInRemote = true;
                     break;
                 }
             }
-
-            if (!exists) {
-                currentSongs.add(remoteSong);
-                addedCount++;
+            if (!existsInRemote) {
+                report.removed++;
             }
         }
 
-        if (addedCount > 0) {
-            saveSongs(context, currentSongs);
+        // Count additions (songs present in remote but not in app)
+        for (Song rem : remoteSongs) {
+            boolean existsInCurrent = false;
+            for (Song cur : currentSongs) {
+                if (rem.getTitle().trim().equalsIgnoreCase(cur.getTitle().trim()) &&
+                    rem.getAuthor().trim().equalsIgnoreCase(cur.getAuthor().trim())) {
+                    existsInCurrent = true;
+                    break;
+                }
+            }
+            if (!existsInCurrent) {
+                report.added++;
+            }
         }
 
-        return addedCount;
+        // Exact mirror update: replace current list with remote list
+        currentSongs.clear();
+        currentSongs.addAll(remoteSongs);
+
+        saveSongs(context, currentSongs);
+        report.total = currentSongs.size();
+
+        return report;
     }
 }

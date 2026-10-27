@@ -25,7 +25,7 @@ public class GitHubSyncManager {
     public static final String DEFAULT_URL = "https://raw.githubusercontent.com/Mazilium/songbook/main/songs.json";
 
     public interface SyncCallback {
-        void onSuccess(int addedCount, int totalCount);
+        void onSuccess(SongStorage.SyncReport report);
         void onError(String errorMessage);
     }
 
@@ -95,9 +95,10 @@ public class GitHubSyncManager {
                     remoteSongs.add(Song.fromJsonObject(obj));
                 }
 
-                int added = SongStorage.mergeNewSongs(context, currentSongs, remoteSongs);
+                // Complete Mirror Sync: additions, deletions, updates
+                SongStorage.SyncReport report = SongStorage.syncWithRemoteSongs(context, currentSongs, remoteSongs);
 
-                mainHandler.post(() -> callback.onSuccess(added, currentSongs.size()));
+                mainHandler.post(() -> callback.onSuccess(report));
 
             } catch (Exception e) {
                 String errMsg = e.getMessage() != null ? e.getMessage() : "Не вдалося з'єднатися з GitHub";

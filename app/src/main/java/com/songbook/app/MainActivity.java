@@ -146,18 +146,19 @@ public class MainActivity extends AppCompatActivity {
 
         GitHubSyncManager.syncSongsFromGitHub(this, songList, new GitHubSyncManager.SyncCallback() {
             @Override
-            public void onSuccess(int addedCount, int totalCount) {
+            public void onSuccess(SongStorage.SyncReport report) {
                 adapter.notifyDataSetChanged();
-                updatePageIndicator(viewPager.getCurrentItem());
+                int safeIndex = Math.min(viewPager.getCurrentItem(), Math.max(0, songList.size() - 1));
+                viewPager.setCurrentItem(safeIndex, false);
+                updatePageIndicator(safeIndex);
 
-                if (addedCount > 0) {
-                    playPageFlipSound();
-                    Toast.makeText(MainActivity.this, "🎉 Додано " + addedCount + " нових пісень! Всього в книзі: " + totalCount, Toast.LENGTH_LONG).show();
-                    // Flip to the newly added song!
-                    viewPager.setCurrentItem(totalCount - addedCount, true);
-                } else {
-                    Toast.makeText(MainActivity.this, "✓ Усі пісні з GitHub уже завантажені (всього: " + totalCount + ")", Toast.LENGTH_SHORT).show();
-                }
+                StringBuilder sb = new StringBuilder("✓ Синхронізовано з GitHub!");
+                if (report.added > 0) sb.append("\n+ Додано: ").append(report.added);
+                if (report.removed > 0) sb.append("\n- Видалено: ").append(report.removed);
+                sb.append("\nВсього пісень у книзі: ").append(report.total);
+
+                playPageFlipSound();
+                Toast.makeText(MainActivity.this, sb.toString(), Toast.LENGTH_LONG).show();
             }
 
             @Override
